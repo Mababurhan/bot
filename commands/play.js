@@ -27,11 +27,13 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const url = interaction.options.getString('url');
+    const url = ctx.options 
+  ? ctx.options.getString('url') 
+  : args[0];
     const voiceChannel = interaction.member.voice.channel;
 
     if (!voiceChannel)
-      return interaction.reply({ content: '🎤 پێویستە بچیتە ژووری دەنگی', ephemeral: true });
+      return ctx.reply(...)({ content: '🎤 پێویستە بچیتە ژووری دەنگی', ephemeral: true });
 
     const info = await play.video_info(url);
     const title = info.video_details.title;
