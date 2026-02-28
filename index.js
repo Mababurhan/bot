@@ -5,28 +5,13 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildVoiceStates
+    GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent 
+    GatewayIntentBits.MessageContent
   ]
 });
+
 const PREFIX = "!";
-client.on('messageCreate', async (message) => {
-  if (!message.content.startsWith(PREFIX) || message.author.bot) return;
-
-  const args = message.content.slice(PREFIX.length).trim().split(/ +/);
-  const commandName = args.shift().toLowerCase();
-
-  const command = client.commands.get(commandName);
-  if (!command) return;
-
-  try {
-    await command.execute(message, args); // بۆ prefix
-  } catch (error) {
-    console.error(error);
-    message.reply('❌ هەڵەیەک ڕوویدا');
-  }
-});
 
 client.commands = new Collection();
 
@@ -41,6 +26,8 @@ client.once('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
+/* ================= SLASH COMMANDS ================= */
+
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -48,10 +35,29 @@ client.on('interactionCreate', async interaction => {
   if (!command) return;
 
   try {
-    await command.async execute(ctx, args);
+    await command.execute(interaction);
   } catch (error) {
     console.error(error);
     await interaction.reply({ content: '❌ هەڵەیەک ڕوویدا', ephemeral: true });
+  }
+});
+
+/* ================= PREFIX COMMANDS ================= */
+
+client.on('messageCreate', async message => {
+  if (!message.content.startsWith(PREFIX) || message.author.bot) return;
+
+  const args = message.content.slice(PREFIX.length).trim().split(/ +/);
+  const commandName = args.shift().toLowerCase();
+
+  const command = client.commands.get(commandName);
+  if (!command) return;
+
+  try {
+    await command.execute(message, args);
+  } catch (error) {
+    console.error(error);
+    message.reply('❌ هەڵەیەک ڕوویدا');
   }
 });
 
